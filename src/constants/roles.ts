@@ -1,6 +1,6 @@
-export namespace RoleModule {
-    export const ADMIN = "ADMIN";
-    export const USER = "USER";
-}
+export const ROLES = {
+    ADMIN: "ADMIN",
+    USER: "USER",
+} as const;
 
-export type Role = typeof RoleModule.ADMIN | typeof RoleModule.USER;
+export type Role = (typeof ROLES)[keyof typeof ROLES];
