@@ -2,6 +2,9 @@ import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { db } from "./config/db.js";
+import { errorMiddleware } from "./middlewares/error.middleware.js";
+import { authRoutes } from "./modules/auth/auth.routes.js";
+import { productRoutes } from "./modules/product/product.routes.js";
 
 class App {
     public app: Application;
@@ -30,22 +33,21 @@ class App {
                 message: "API is Live",
             });
         });
+
+        this.app.use("/api/v1/auth", authRoutes);
+        this.app.use("/api/v1/products", productRoutes);
     }
 
     private initializeErrorHandling() {
-        this.app.use((_req: Request, res: Response) => {
-            res.status(404).json({
-                success: false,
-                message: "Route not found",
-            });
-        });
+        this.app.use(errorMiddleware.notFound);
+        this.app.use(errorMiddleware.handle);
     }
 
     public async listen() {
         try {
             await db.connect();
             this.app.listen(this.port, () => {
-                console.log(`Server Running at: ${this.port}`);
+                console.log(`Server Running at: http://localhost:${this.port}`);
             });
         } catch (error) {
             console.error("Failed to start server:", error);
